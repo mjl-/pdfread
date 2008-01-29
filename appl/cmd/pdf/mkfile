@@ -1,0 +1,19 @@
+<../../../mkconfig
+
+TARG=\
+	walk.dis\
+	text.dis\
+
+SYSMODULES=\
+	arg.m\
+	bufio.m\
+	daytime.m\
+	draw.m\
+	keyring.m\
+	string.m\
+	sys.m\
+	pdfread.m\
+
+DISBIN=$ROOT/dis/pdf
+
+<$ROOT/mkfiles/mkdis

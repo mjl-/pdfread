@@ -1,0 +1,79 @@
+- rearrange code, make a appl/cmd etc. structure
+- make Input less ugly
+- fix lzwdecode, seems to be something wrong still
+- more filters
+- better error messages
+- see if there are more problems to parsing the structure of most pdf files
+	* no newline after 'startxref' seen (only a space)
+- determine what kind of object types (e.g. dicts with types as Pages, Catalog, etc., Annot, Thumbnail) exist, to get an idea of what might have to be supported in the future
+
+totext:
+	- determine whether more commands should be supported
+	- better guessing of where newlines/spaces should be done, based on Td etc.  may involve needing to do much more sophisticated spacing
+
+future:
+	- toimage, render a pdf file to a series of inferno images
+	- tops, rewrite a pdf to postscript
+	- view, combine totext and toimage logic for reading a pdf file: searching, viewing pages, zooming, text selecting, toc, links
+
+walk:
+	- todo: implement searching in (stream) dictionaries; only parse content streams as content streams, there can be many other types of content streams as well.
+	- helps walking through a pdf
+	- display xref sections, click on object to show it
+	- when showing an object, allow clicking on object references to show it
+	- streams are displayed as text, carriage returns converted to newlines for easy viewing of operators
+	- screen: contents of an object (the dict for a stream), a short history (5 lines?) of previous objects (hierarchical, so we can see how we got here.  only dicts and arrays can be used to refer further, for array we show an index, for dict the key.), contents of a stream
+	- start out with trailer object, allows to open the pages
+	- allow selecting all objects of a certain type (search a dict for having a certain value for a certain key), such as catalog, page, pages.  values for the relevant keys should be cached.
+
+
+working:
+testpdf -t ../../toeli*.pdf
+testpdf -t ../../rabin.pdf
+testpdf -t ../../Afst*.pdf
+testpdf -t ../../20060417133945265_ML-3050series_English.pdf
+testpdf -t ../../FOA_Notice_07-23.pdf
+testpdf -t ../../paper-strategy.pdf
+testpdf -t ../../broder93some.pdf # bad text, specialized encoding?
+testpdf -t ../../esecman.en.pdf	# veel spacing problemen
+testpdf -t ../../bpl13208.pdf
+testpdf -t idleness.pdf
+testpdf -t t/gpc.pdf
+testpdf -t infohide.pdf	# lots of spaces
+testpdf -t t/first.pdf
+testpdf -t t/gnutella.pdf
+testpdf -t t/irda.pdf
+testpdf -t t/gfs-sosp2003.pdf	# can be read, but bad text, probably other encoding, or fonts in pdf
+testpdf -t t/format-string-attacks.pdf
+testpdf -t t/fulltext.pdf
+testpdf -t t/ThinkingInPostScript.pdf
+testpdf -t t/usb_still_img10.pdf
+testpdf -t t/svn-redbook.pdf
+testpdf -d t/real.pdf (fixed manually, no newline after startxref.  veel spacing problemen)
+testpdf -t ../../pdf_reference.pdf
+testpdf -t t/trace.pdf (has illegally escaped char in string: \[ and \]
+
+testpdf -d ../../pracpost.pdf
+	before read, offset=31657
+	after read, offset=34223
+	after read2, offset=34224
+	defilter contents: lzwdecode: bad reference 365, last possible is 259
+
+
+on fonts:
+
+fonts have a default character encoding (except type3 fonts) and default glyph widths.
+default encodings are: StandardEncoding (the default encoding in pdf's), MacRomanEncoding, MacExpertEncoding, and WinAnsiEncoding.
+they can be overridden with a /Width and /Encoding in the Font dict.  the /FontDescriptor specifies more detailed adaptations of fonts.
+
+type3 fonts:
+- have a /FontBBox name, specifying the bounding box of all glyphs combined.
+- have a /FontMatrix, specifying the Tm font matrix in 1/1000ths.
+- have a /CharProcs that denote the rendering of the fonts
+- have a /Encoding that specifies the complete character encoding in the Differences array (or is a name of a default encoding)
+- may have a /ToUnicode stream of a cmap file mapping chars to unicode
+- may have a /FontDescriptor mapping other metrics than glyph width
+- have a /Widths array, width widths of the glyphs
+
+page 422 of the pdf reference has some info on how a type3 character and glyph is looked up and rendered.
+pages 430,431 has info on truetype fonts

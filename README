@@ -1,0 +1,27 @@
+# what?
+
+these files contain the following:
+- a library to read pdf files
+- a program to extract text from a pdf file
+- a program to walk through a pdf file
+
+in the future, a pdf renderer may be developed.
+
+# how to install?
+
+make a 'mkconfig' in this directory (bind you inferno's one here,
+or symlink it).  now 'mk install', and you'll have:
+
+	/module/pdfread.m
+	/dis/lib/pdfread.dis
+	/dis/pdf/text.dis
+	/dis/pdf/walk.dis
+
+# other thinks
+
+see todo.txt on what is left to implement (incomplete of course)
+
+syntax.txt has some notes on the structure of pdf files.  see the
+pdf reference from adobe for full information.
+
+directory t/ has some pdf files i have been using for testing.

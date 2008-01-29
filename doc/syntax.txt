@@ -1,0 +1,134 @@
+special characters:
+	( ) < > [ ] { } / %
+whitespace:
+	\0 \t \r \n space formfeed (formfeed=0x0c)
+end of line:
+	\r
+	\n
+	\r\n
+
+comments:
+	introduced with %
+	run to end of line
+	treated as a single whitespace (ignored)
+	cannot occur in string or stream
+
+boolean:
+	true or false (literal string)
+
+numeric:
+	a real or integer.  fixed point (but floating point approximation is good enough)
+	[+-]?[0-9]*\.?[0-9]*
+
+strings:
+	(blah)
+	(blah (nested matching paratheses are okay))
+	(blah\nblah
+	end of line can be included, \r\n and \r collapse into single \n
+	\ddd is octal.  high order bits on first byte of three are ignored.  preceding nul bytes may be absent unless it would make the readign be ambibuous.
+
+	<0AFE....>, hexadecimal notation, on byte per pair
+	last byte may be missing, implying a 0
+
+name:
+	/name
+	/1
+	/$$
+	/#A0FE (# introduces hexadecimal)
+
+array:
+	[elem1 elem2]
+	mixing of types
+	nesting of arrays
+
+dict:
+	<<
+		/type /example
+		/version 1
+		/name (oink)
+		/subdict << /test (test)>>
+	>>
+	key is altijd een name
+	blijkbaar mag een value uit bijv. een reference bestaan: 8 0 R
+
+stream object:
+a dictionary
+	length	bytes between stream delimiters
+	filter	name or array of names of filters
+	decodeparams	params for filters
+	F	file to readm stream from
+	more
+
+null object
+	keyword null
+
+indirect object
+	num num R
+	a reference to an undefined object is considered a reference to a null object.
+	(dereferenced when accessed, not when parsed)
+
+	object number
+	generation number
+	obj
+	...
+	endobj
+
+	12 0 obj
+	(test)
+	endobj
+
+	reference it:
+	10 0 R
+
+
+stream
+...
+endstream
+
+
+Filters:
+	grep -a '/Filter' *.pdf | sed -n 's,^.*\(Filter */[a-zA-Z0-9]*\).*$,\1,p' | sort | uniq -c
+     29 Filter /ASCII85Decode
+    137 Filter /CCITTFaxDecode
+     22 Filter/CCITTFaxDecode
+     32 Filter /DCTDecode
+     43 Filter/DCTDecode
+   6855 Filter /FlateDecode
+   1417 Filter/FlateDecode
+    608 Filter /LZWDecode
+      1 Filter/LZWDecode
+     11 Filter /RunLengthDecode
+      1 Filter /Standard
+
+	grep -a '/Filter' *.pdf | sed -n 's,^.*\(Filter *\[[^\]*\]\).*,\1,p$' | sort | uniq -c
+     13 Filter [ /ASCII85Decode /DCTDecode ]
+      1 Filter [/ASCII85Decode /DCTDecode ]
+    508 Filter [ /ASCII85Decode /FlateDecode ]
+    353 Filter [ /ASCII85Decode /LZWDecode ]
+    239 Filter [/ASCII85Decode /LZWDecode ]
+     82 Filter[/FlateDecode]
+
+
+xref:
+	subsection:
+		start: number number (start, entry count)
+		entry: 20 bytes exactly
+		10 digit offset
+		space
+		5 digit generation umber
+		space
+		n => in use, f => free
+		eol => \r\n or space\n
+
+	xref
+	one or more subsections
+	trailer
+	dictionary
+
+file
+	read version in first line
+	now start at end, has %%EOF
+	two lines previous has: "startxref" and byte offset for xref table
+	read xref table, and trailer
+	trailer has root object to start at (and pointer to document info)
+	

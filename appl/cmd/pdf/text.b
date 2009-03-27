@@ -88,26 +88,29 @@ popobj(): ref Obj
 
 popnum(): real
 {
-	pick o := popobj() {
+	pick o := oo := popobj() {
 	Numeric =>	return o.v;
-	* =>	fail("bad type, need number/real, have "+o.text());
 	}
+	fail("bad type, need number/real, have "+oo.text());
+	return 0.0;
 }
 
 popstring(): string
 {
-	pick o := popobj() {
+	pick o := oo := popobj() {
 	String =>	return o.s.text();
-	* =>	fail("bad type, need string, have "+o.text());
 	}
+	fail("bad type, need string, have "+oo.text());
+	return nil;
 }
 
 poparray(): array of ref Obj
 {
-	pick o := popobj() {
+	pick o := oo := popobj() {
 	Array =>	return o.a;
-	* =>	fail("bad type, need string, have "+o.text());
 	}
+	fail("bad type, need string, have "+oo.text());
+	return nil;
 }
 
 handle(obj: ref Obj)
@@ -307,9 +310,9 @@ xreferarray(oo: ref Obj, s: string, must: int): array of ref Obj
 		if(oerr != nil)
 			fail(sprint("elem in %#q: %s", s, oerr));
 		return array[1] of {dstobj};
-	* =>
-		fail(sprint("elem %#q: not an array", s));
 	}
+	fail(sprint("elem %#q: not an array", s));
+	return nil;
 }
 
 fail(s: string)

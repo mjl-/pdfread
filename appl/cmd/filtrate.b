@@ -71,15 +71,18 @@ done:
 			n := sys->read(fildes(0), m.buf, len m.buf);
 			if(n < 0)
 				n = -1;
+			say(sprint("fill, len m.buf %d, giving %d", len m.buf, n));
 			m.reply <-= n;
 			if(n < 0)
 				fail(sprint("reading: %r"));
 		Result =>
+			say(sprint("result, len m.buf %d", len m.buf));
 			n := sys->write(fildes(1), m.buf, len m.buf);
 			if(n != len m.buf)
 				fail(sprint("writing: %r"));
 			m.reply <-= 0;
 		Finished =>
+			say(sprint("finished, remaining %d bytes", len m.buf));
 			break done;
 		Info =>
 			if(vflag)

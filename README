@@ -1,27 +1,44 @@
-# what?
+# status
 
-these files contain the following:
-- a library to read pdf files
-- a program to extract text from a pdf file
-- a program to walk through a pdf file
+work in progress (though stalled now).  has two tools so far:
+pdf/text to convert a pdf to text (though does not implement character
+encoding/sets, and whitespace is often wrong).  pdf/walk, a tk
+program for navigation the structure of a pdf.  there is no code
+to render a pdf on a canvas.
 
-in the future, a pdf renderer may be developed.
 
-# how to install?
+# intro
 
-make a 'mkconfig' in this directory (bind you inferno's one here,
-or symlink it).  now 'mk install', and you'll have:
+this package contains a library & tools for reading pdf files.  in
+the future, perhaps a pdf renderer can be build on top of this code.
+there is no documentation since this is a work in progress.  feel
+free to fix/improve!
 
-	/module/pdfread.m
-	/dis/lib/pdfread.dis
-	/dis/pdf/text.dis
-	/dis/pdf/walk.dis
 
-# other thinks
+# install
 
-see todo.txt on what is left to implement (incomplete of course)
+first, ensure a "mkconfig" file is present.  a bind/symlink to the
+mkconfig of your inferno install should do.  create the directory
+/dis/pdf.  now "mk install" to compile and install the files.
 
-syntax.txt has some notes on the structure of pdf files.  see the
-pdf reference from adobe for full information.
 
-directory t/ has some pdf files i have been using for testing.
+# download
+
+the latest version can be found at:
+
+    http://www.ueber.net/code/r/pdfread
+
+
+# licence & author
+
+appl/lib/pdfinflate.b is copyright & subject to the license from vitanuova.
+
+all other files are in the public domain.  this code has been written by
+mechiel lukkien, reachable at mechiel@ueber.net or mechiel@xs4all.nl.
+
+
+# todo
+
+doc/syntax.txt has some random blurps on the syntax/structure of
+pdf files.  todo.txt has a (probably outdated/inaccurate) list of
+things to improve.

@@ -4,11 +4,11 @@
 implement Filter;
 
 include "sys.m";
+	sys: Sys;
 include "string.m";
+	str: String;
 include "filter.m";
 
-sys: Sys;
-str: String;
 
 EOF:	con -1;
 ABORT:	con -2;

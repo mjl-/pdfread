@@ -5,9 +5,9 @@
 implement Filter;
 
 include "sys.m";
+	sys: Sys;
 include "filter.m";
 
-sys: Sys;
 
 EOF:	con -1;
 ABORT:	con -2;

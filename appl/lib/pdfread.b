@@ -1,18 +1,18 @@
 implement Pdfread;
 
 include "sys.m";
+	sys: Sys;
+	sprint: import sys;
 include "string.m";
+	str: String;
 include "bufio.m";
 	bufio: Bufio;
 	Iobuf: import bufio;
+	EOF, ERROR: import bufio;
 include "filter.m";
+	cascadefilter: Filter;
 include "pdfread.m";
 
-sys: Sys;
-str: String;
-cascadefilter: Filter;
-print, fprint, sprint, fildes: import sys;
-EOF, ERROR: import bufio;
 
 dflag = 0;
 
@@ -61,7 +61,7 @@ Doc.open(path: string): (ref Doc, string)
 		i--;
 	}
 	b.seek(big -(len buf-i), Bufio->SEEKEND);
-#print("offset=%bd\n", b.offset());
+#sys->print("offset=%bd\n", b.offset());
 
 	s := getline(in);
 	if(s != "startxref")
@@ -922,7 +922,7 @@ filterget(i: ref Input.Stream)
 			m.reply <-= have;
 			i.off += big have;
 		Result =>
-#print("have data: %s\n", string m.buf);
+#sys->print("have data: %s\n", string m.buf);
 			i.d = array[len m.buf] of byte;
 			i.d[:] = m.buf;
 			i.doff = 0;
@@ -951,7 +951,7 @@ Input.getb(ii: self ref Input): int
 	File =>
 		return i.b.getb();
 	Stream =>
-#print("getb\n");
+#sys->print("getb\n");
 		if(i.err)
 			return ERROR;
 		if(i.eof)
@@ -959,7 +959,7 @@ Input.getb(ii: self ref Input): int
 		if(i.unget) {
 			i.unget = 0;
 			i.foff++;
-#print("returning from unget buffer, i.prev=%d\n", i.prev);
+#sys->print("returning from unget buffer, i.prev=%d\n", i.prev);
 			return i.prev;
 		}
 		if(i.doff >= len i.d) {
@@ -973,7 +973,7 @@ Input.getb(ii: self ref Input): int
 		}
 		i.foff++;
 		i.prev = int i.d[i.doff++];
-#print("returning from buf, i.prev=%d\n", i.prev);
+#sys->print("returning from buf, i.prev=%d\n", i.prev);
 		return i.prev;
 	}
 }
@@ -994,7 +994,7 @@ Input.ungetb(ii: self ref Input): int
 		}
 		i.foff--;
 		i.unget = 1;
-#print("ungetb, returning %d\n", i.prev);
+#sys->print("ungetb, returning %d\n", i.prev);
 		return i.prev;
 	}
 }
@@ -1026,5 +1026,5 @@ Input.rewind(ii: self ref Input): string
 say(s: string)
 {
 	if(dflag)
-		fprint(fildes(2), "%s\n", s);
+		sys->fprint(sys->fildes(2), "%s\n", s);
 }

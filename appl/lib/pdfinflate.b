@@ -7,6 +7,7 @@ include "sys.m";
 	sys:	Sys;
 include "filter.m";
 
+
 GZMAGIC1:	con byte 16r1f;
 GZMAGIC2:	con byte 16r8b;
 

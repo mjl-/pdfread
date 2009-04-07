@@ -5,14 +5,13 @@
 implement Filter;
 
 include "sys.m";
+	sys: Sys;
+	sprint: import sys;
 include "string.m";
+	str: String;
 include "filter.m";
+	nullfilter: Filter;
 
-sys: Sys;
-str: String;
-nullfilter: Filter;
-
-sprint: import sys;
 
 ABORT:	con -1;
 FINISHED:	con -2;
@@ -228,5 +227,3 @@ F.get(f: self ref F, t: ref Top, buf: array of byte): (int, array of byte)
 	if(t.vflag) info(t, sprint("returning result from filter n=%d i=%d name=%q", n, f.i, f.name));
 	return (n, nil);
 }
-
-

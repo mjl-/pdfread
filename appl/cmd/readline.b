@@ -1,9 +1,8 @@
 implement Readline;
 
 include "sys.m";
+	sys: Sys;
 include "draw.m";
-
-sys: Sys;
 
 Readline: module {
 	init:	fn(nil: ref Draw->Context, nil: list of string);

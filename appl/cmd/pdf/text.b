@@ -1,6 +1,8 @@
 implement PdfText;
 
 include "sys.m";
+	sys: Sys;
+	sprint: import sys;
 include "draw.m";
 include "arg.m";
 include "bufio.m";
@@ -8,22 +10,16 @@ include "bufio.m";
 	Iobuf: import bufio;
 include "filter.m";
 include "pdfread.m";
-
-sys: Sys;
-pdfread: Pdfread;
-
-sprint, fprint, print, fildes: import sys;
-Single, Many, Doc, Obj, Str: import pdfread;
-
-doc: ref Doc;
-
+	pdfread: Pdfread;
+	Single, Many, Doc, Obj, Str: import pdfread;
 
 PdfText: module {
 	init:	fn(nil: ref Draw->Context, args: list of string);
 };
 
-tflag, dflag: int;
 
+doc: ref Doc;
+tflag, dflag: int;
 
 init(nil: ref Draw->Context, args: list of string)
 {
@@ -40,9 +36,7 @@ init(nil: ref Draw->Context, args: list of string)
 		't' =>	tflag++;
 		'd' =>	dflag++;
 			pdfread->dflag = dflag;
-		* =>
-			fprint(fildes(2), "bad option: -%c\n", c);
-			arg->usage();
+		* =>	arg->usage();
 		}
 
 	args = arg->argv();
@@ -55,18 +49,18 @@ init(nil: ref Draw->Context, args: list of string)
 	if(err != nil)
 		fail(err);
 	if(!tflag)
-		print("version=%s xref=%d nobjs=%d\n", doc.version, doc.xref, len doc.objs);
+		sys->print("version=%s xref=%d nobjs=%d\n", doc.version, doc.xref, len doc.objs);
 	for(i := 0; i < len doc.objs; i++) {
 		(offset, id, gen, mode) := doc.objs[i];
 		if(!tflag && dflag)
-			print("%10bd %5d %5d %1d\n", offset, id, gen, mode);
+			sys->print("%10bd %5d %5d %1d\n", offset, id, gen, mode);
 	}
 	if(!tflag)
-		print("trailer=%q\n", doc.trailer.text());
+		sys->print("trailer=%q\n", doc.trailer.text());
 
 	root := xrefer(doc.trailer, "Root");
 	if(!tflag)
-		print("root: %q\n", root.text());
+		sys->print("root: %q\n", root.text());
 	handle(root);
 }
 
@@ -122,21 +116,21 @@ handle(obj: ref Obj)
 	"Catalog" =>
 		pages := xrefer(obj, "Pages");
 		if(!tflag)
-			print("pages: %q\n", pages.text());
+			sys->print("pages: %q\n", pages.text());
 		handle(pages);
 
 	"Pages" =>
 		kids := xreferarray(obj, "Kids", 1);
 		for(j := 0; j < len kids; j++)
 			if(!tflag)
-				print("kids[%d]: %q\n", j, kids[j].text());
+				sys->print("kids[%d]: %q\n", j, kids[j].text());
 		for(j = 0; j < len kids; j++)
 			handle(kids[j]);
 
 	"Page" =>
 		resources := xrefer(obj, "Resources");
 		if(!tflag)
-			print("resources: %s\n", resources.text());
+			sys->print("resources: %s\n", resources.text());
 		contentarr := xreferarray(obj, "Contents", 0);
 		if(len contentarr == 1) {
 			pick a := contentarr[0] {
@@ -248,7 +242,7 @@ handle(obj: ref Obj)
 		if(intext)
 			fail("contents: premature eof, still in text context");
 		if(text != "")
-			print("%s\n", text);
+			sys->print("%s\n", text);
 
 	* =>
 		fail("unknown type: "+s);
@@ -317,12 +311,12 @@ xreferarray(oo: ref Obj, s: string, must: int): array of ref Obj
 
 fail(s: string)
 {
-	fprint(fildes(2), "%s\n", s);
+	sys->fprint(sys->fildes(2), "%s\n", s);
 	raise "fail:"+s;
 }
 
 say(s: string)
 {
 	if(dflag)
-		fprint(fildes(2), "%s\n", s);
+		sys->fprint(sys->fildes(2), "%s\n", s);
 }

@@ -1,18 +1,17 @@
 implement Filtrate;
 
 include "sys.m";
+	sys: Sys;
+	sprint: import sys;
 include "draw.m";
 include "arg.m";
 include "filter.m";
-
-sys: Sys;
-filter: Filter;
-
-print, fprint, sprint, fildes: import sys;
+	filter: Filter;
 
 Filtrate: module {
 	init:	fn(nil: ref Draw->Context, args: list of string);
 };
+
 
 vflag := 0;
 tab := array[] of {
@@ -36,9 +35,7 @@ init(nil: ref Draw->Context, args: list of string)
 		case c {
 		'v' =>	vflag++;
 		'p' =>	params = arg->earg();
-		* =>
-			fprint(fildes(2), "bad option\n");
-			arg->usage();
+		* =>	arg->usage();
 		}
 	args = arg->argv();
 	if(len args != 1)
@@ -68,7 +65,7 @@ done:
 			if(vflag)
 				say(sprint("pid=%d", m.pid));
 		Fill =>
-			n := sys->read(fildes(0), m.buf, len m.buf);
+			n := sys->read(sys->fildes(0), m.buf, len m.buf);
 			if(n < 0)
 				n = -1;
 			say(sprint("fill, len m.buf %d, giving %d", len m.buf, n));
@@ -77,7 +74,7 @@ done:
 				fail(sprint("reading: %r"));
 		Result =>
 			say(sprint("result, len m.buf %d", len m.buf));
-			n := sys->write(fildes(1), m.buf, len m.buf);
+			n := sys->write(sys->fildes(1), m.buf, len m.buf);
 			if(n != len m.buf)
 				fail(sprint("writing: %r"));
 			m.reply <-= 0;
@@ -97,11 +94,11 @@ done:
 
 fail(s: string)
 {
-	fprint(fildes(2), "%s\n", s);
+	sys->fprint(sys->fildes(2), "%s\n", s);
 	raise "fail:"+s;
 }
 
 say(s: string)
 {
-	fprint(fildes(2), "%s\n", s);
+	sys->fprint(sys->fildes(2), "%s\n", s);
 }

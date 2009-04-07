@@ -1,27 +1,30 @@
 implement PdfWalk;
 
 include "sys.m";
+	sys: Sys;
+	sprint: import sys;
 include "draw.m";
+	draw: Draw;
+	Display, Image: import draw;
 include "string.m";
+	str: String;
 include "arg.m";
 include "tk.m";
+	tk: Tk;
 include	"tkclient.m";
+	tkclient: Tkclient;
 include "bufio.m";
 	bufio: Bufio;
 	Iobuf: import bufio;
 include "filter.m";
 include "pdfread.m";
+	pdfread: Pdfread;
+	Single, Many, Doc, Obj, Str, Input: import pdfread;
 
-sys: Sys;
-draw: Draw;
-str: String;
-tk: Tk;
-tkclient: Tkclient;
-pdfread: Pdfread;
-
-sprint, fprint, print, fildes: import sys;
-Display, Image: import draw;
-Single, Many, Doc, Obj, Str, Input: import pdfread;
+PdfWalk: module
+{
+	init:	fn(ctxt: ref Draw->Context, argv: list of string);
+};
 
 
 Hist: adt {
@@ -50,11 +53,6 @@ wmctl: chan of string;
 
 hist: ref Hist;
 histmem: ref Histmem;
-
-PdfWalk: module
-{
-	init:	fn(ctxt: ref Draw->Context, argv: list of string);
-};
 
 tkcmds := array[] of {
 	"frame .fhist",
@@ -120,8 +118,7 @@ init(ctxt: ref Draw->Context, args: list of string)
 	while((c := arg->opt()) != 0)
 		case c {
 		'd' =>	dflag++;
-		* =>	fprint(fildes(2), "bad option\n");
-			arg->usage();
+		* =>	arg->usage();
 		}
 	args = arg->argv();
 	if(len args != 1)
@@ -173,7 +170,7 @@ init(ctxt: ref Draw->Context, args: list of string)
 
 		case l {
 		* =>
-			print("%s\n", bcmd);
+			sys->print("%s\n", bcmd);
 		"index" or "find" =>
 			# read through pdf file, reading all objects (but do not start filters i suppose)
 			# keep a table mapping:  key => list of (value => objref)
@@ -194,7 +191,7 @@ init(ctxt: ref Draw->Context, args: list of string)
 				hist = histmem.a[memid].clone();
 			id := int r[1:];
 			if(id >= len hist.a) {
-				print("bad history ref");
+				sys->print("bad history ref");
 				continue;
 			}
 
@@ -212,7 +209,7 @@ init(ctxt: ref Draw->Context, args: list of string)
 			}
 			hist.resettext(".path", 0);
 		"objref" =>
-			#print("have %s, q=%q\n", l, r);
+			#sys->print("have %s, q=%q\n", l, r);
 			ids, gens, newpath: string;
 			(ids, r) = str->splitstrl(r, " ");
 			(gens, r) = str->splitstrl(r[1:], " ");
@@ -249,7 +246,7 @@ tag := 0;
 caddtag(ks: string, v: ref Obj.Objref, path: string)
 {
 	ts := "t"+string tag++;
-#print("adding tag, ks=%s ts=%s path=%s\n", ks, ts, path);
+#sys->print("adding tag, ks=%s ts=%s path=%s\n", ks, ts, path);
 	tk->cmd(t, sprint(".c tag add %s {end -%dc} {end -1c}", ts, 1+len ks));
 	tk->cmd(t, sprint(".c tag bind %s <ButtonRelease-1> {send cmd objref %d %d %s}", ts, v.id, v.gen, path));
 }
@@ -431,6 +428,6 @@ Histmem.add(m: self ref Histmem, h: ref Hist)
 
 fail(s: string)
 {
-	fprint(fildes(2), "%s\n", s);
+	sys->fprint(sys->fildes(2), "%s\n", s);
 	raise "fail:"+s;
 }

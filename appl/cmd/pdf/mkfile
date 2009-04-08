@@ -3,6 +3,7 @@
 TARG=\
 	walk.dis\
 	text.dis\
+	inflate.dis\
 
 SYSMODULES=\
 	arg.m\

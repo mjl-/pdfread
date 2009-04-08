@@ -48,8 +48,8 @@ dict:
 		/name (oink)
 		/subdict << /test (test)>>
 	>>
-	key is altijd een name
-	blijkbaar mag een value uit bijv. een reference bestaan: 8 0 R
+	key is always a name
+	apparently, a value can be a reference:  8 0 R
 
 stream object:
 a dictionary
@@ -131,4 +131,3 @@ file
 	two lines previous has: "startxref" and byte offset for xref table
 	read xref table, and trailer
 	trailer has root object to start at (and pointer to document info)
-	

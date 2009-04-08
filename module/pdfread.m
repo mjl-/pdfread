@@ -42,6 +42,7 @@ Pdfread: module {
 		ungetb:	fn(i: self ref Input): int;
 		text:	fn(i: self ref Input): string;
 		rewind:	fn(i: self ref Input): string;
+		readall:	fn(i: self ref Input): array of byte;
 	};
 
 	Obj: adt {
@@ -76,6 +77,7 @@ Pdfread: module {
 		getname:	fn(o: self ref Obj, s: string, which: int): (array of ref Obj.Name, string);
 		getobjref:	fn(o: self ref Obj, s: string, which: int): (array of ref Obj.Objref, string);
 		text:	fn(o: self ref Obj): string;
+		packtext:	fn(o: self ref Obj): string;
 		pack:	fn(o: self ref Obj): string;
 	};
 

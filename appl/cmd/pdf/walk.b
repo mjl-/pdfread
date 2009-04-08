@@ -317,7 +317,7 @@ setstream(so: ref Obj.Stream)
 			return;
 		pick o := obj {
 		* =>
-			s += " "+o.pack();
+			s += " "+o.packtext();
 		Operator =>
 			newindent := indent;
 			which := "indent";
@@ -331,10 +331,10 @@ setstream(so: ref Obj.Stream)
 			* =>
 				which = "operator";
 			}
-			s += " "+o.pack()+"\n";
+			s += " "+o.packtext()+"\n";
 			s = indent+s[1:];
 			tk->cmd(t, ".s insert end '"+s);
-			tk->cmd(t, sprint(".s tag add %s {end -%dc} {end -1c}", which, 2+len o.pack()));
+			tk->cmd(t, sprint(".s tag add %s {end -%dc} {end -1c}", which, 2+len o.packtext()));
 			s = "";
 			indent = newindent;
 		}

@@ -1,10 +1,13 @@
 # status
 
-work in progress (though stalled now).  has two tools so far:
-pdf/text to convert a pdf to text (though does not implement character
-encoding/sets, and whitespace is often wrong).  pdf/walk, a tk
-program for navigation the structure of a pdf.  there is no code
-to render a pdf on a canvas.
+work in progress (though stalled now).  has three tools so far:
+- pdf/text, converts a pdf to text (though does not implement character
+  encoding/sets, and whitespace is often wrong).
+- pdf/walk, a tk program for navigation the structure of a pdf.
+- pdf/inflate, rewrites pdf file, reformatting pdf objects and
+  decompressing text.
+
+there is no code to render a pdf on a canvas.
 
 
 # intro
@@ -42,3 +45,13 @@ mechiel lukkien, reachable at mechiel@ueber.net or mechiel@xs4all.nl.
 doc/syntax.txt has some random blurps on the syntax/structure of
 pdf files.  todo.txt has a (probably outdated/inaccurate) list of
 things to improve.
+
+- lzw decoding sometimes breaks
+- improve the parser appl/lib/pdfread.b, perhaps more proper
+  tokenizer, and probably use exceptions for error propagation.
+- implement DCTDecode filter.
+- pdf/inflate: fix Prev byte offset in trailers
+- pdf/inflate: fix remaining bugs.  like fonts that are wrong in the new file.
+- pdf/inflate: if compressed data has non-ascii in it, just keep
+  the original encoding?  image-specific encodings can probably be
+  kept too, no need to make the file size huge with raw bitmaps.

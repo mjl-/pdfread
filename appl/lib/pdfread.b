@@ -68,6 +68,7 @@ Doc.open(path: string): (ref Doc, string)
 		return (nil, sprint("bad value (%q), 'startxref' expected", s));
 	s = getline(in);
 	xref := int s;
+say(sprint("xref at %d", xref));
 	s = getline(in);
 	if(s != "%%EOF")
 		return (nil, sprint("bad value (%q), '%%EOF' expected", s));
@@ -231,7 +232,7 @@ objtext(oo: ref Obj, indent: int): string
 	Operator =>	return l+"op:"+o.s;
 	Null =>		return l+"null:";
 	Stream =>	return l+"stream:("+o.d.text()+", "+o.s.text()+")";
-	* =>		raise "fail:missing case";
+	* =>		raise "missing case";
 	}
 }
 
@@ -240,7 +241,7 @@ Obj.text(oo: self ref Obj): string
 	return objtext(oo, 0);
 }
 
-Obj.pack(oo: self ref Obj): string
+Obj.packtext(oo: self ref Obj): string
 {
 	pick o := oo {
 	Boolean =>	if(o.v)
@@ -252,7 +253,7 @@ Obj.pack(oo: self ref Obj): string
 	Dict =>		s := "<<";
 			for(i := 0; i < len o.d; i++) {
 				(k, v) := o.d[i];
-				s += k.text()+"\t"+v.pack()+" ";
+				s += k.text()+"\t"+v.packtext()+" ";
 			}
 			if(len s > 2)
 				s = s[:len s-1];
@@ -260,7 +261,7 @@ Obj.pack(oo: self ref Obj): string
 			return s;
 	Array =>	s := "[";
 			for(i := 0; i < len o.a; i++)
-				s += o.a[i].pack()+" ";
+				s += o.a[i].packtext()+" ";
 			if(len s > 1)
 				s = s[:len s-1];
 			s += "]";
@@ -269,8 +270,104 @@ Obj.pack(oo: self ref Obj): string
 	Operator =>	return o.s;
 	Null =>		return "null";
 	Stream =>	return "stream\nbogus\nendstream\n";
-	* =>		raise "fail:missing case";
+	* =>		raise "missing case";
 	}
+}
+
+Obj.pack(oo: self ref Obj): string
+{
+	return objpack(oo, "");
+}
+
+objpack(oo: ref Obj, indent: string): string
+{
+	s := indent;
+	pick o := oo {
+	Boolean =>	if(o.v)
+				s += "true";
+			s += "false";
+	Numeric =>	s += o.orig;
+	Name =>		s += "/"+o.s.text(); # xxx escape special chars with hexadecimal encoding...
+	String =>	s += "("+o.s.text()+")";	# xxx escape special chars with backslash
+	Dict =>
+			kindent := indent+"\t";
+			vindent := kindent+"\t";
+			single := issingleline(oo);
+			s += "<<";
+			if(!single)
+				s += "\n";
+			for(i := 0; i < len o.d; i++) {
+				(k, v) := o.d[i];
+				if(!single)
+					s += kindent;
+				s += "/"+k.text();
+				if(!issingleline(v)) {
+					s += "\n";
+					s += objpack(v, vindent);
+				} else {
+					s += "\t";
+					s += objpack(v, nil);
+				}
+				if(!single)
+					s += "\n";
+			}
+			s += indent+">>";
+	Array =>
+			single := issingleline(oo);
+			s += "[";
+			sep := " ";
+			vindent := "";
+			if(!single) {
+				s += "\n";
+				sep = "\n";
+				vindent = indent+"\t";
+			}
+			for(i := 0; i < len o.a; i++) {
+				if(!single)
+					s += vindent;
+				s += o.a[i].pack();
+				if(i < len o.a-1)
+					s += sep;
+			}
+			if(!single)
+				s += "\n";
+			s += indent+"]";
+	Objref =>	s += sprint("%d %d R", o.id, o.gen);
+	Operator =>	s += o.s;
+	Null =>		s += "null";
+	Stream =>	s += "stream\nbogus\nendstream\n";
+	* =>		raise "missing case";
+	}
+	return s;
+}
+
+issingleline(oo: ref Obj): int
+{
+	pick o := oo {
+	Dict =>
+		return len o.d == 0 || (len o.d == 1 && issingleline(o.d[0].t1));
+	Array =>
+		if(len o.a == 0 || (len o.a == 1 && issingleline(o.a[0])))
+			return 1;
+		for(i := 0; i < len o.a; i++)
+			if(!issimple(o.a[i]))
+				return 0;
+	Stream =>
+		return 0;
+	}
+	return 1;
+}
+
+issimple(oo: ref Obj): int
+{
+	case tagof oo {
+	tagof Obj.Boolean or
+	tagof Obj.Numeric or
+	tagof Obj.Name or
+	tagof Obj.Null =>
+		return 1;
+	}
+	return 0;
 }
 
 Doc.findobj(d: self ref Doc, id, gen: int): ref Objloc
@@ -888,7 +985,7 @@ Input.seek(ii: self ref Input, n: big, where: int): big
 		return i.b.seek(n, where);
 	Stream =>
 say("seek on Input.Stream");
-raise "fail:seek on Input.Stream";
+raise "seek on Input.Stream";
 		return big 0;
 	}
 }
@@ -1021,6 +1118,30 @@ Input.rewind(ii: self ref Input): string
 		*i = *stream;
 		return nil;
 	}
+}
+
+grow(d: array of byte, n: int): array of byte
+{
+	nd := array[len d+n] of byte;
+	nd[:] = d;
+	return nd;
+}
+
+Input.readall(i: self ref Input): array of byte
+{
+	d := array[0] of byte;
+	nd := 0;
+	for(;;) {
+		c := i.getb();
+		if(c == EOF)
+			break;
+		if(c == ERROR)
+			return nil;
+		if(nd+1 > len d)
+			d = grow(d, 512);
+		d[nd++] = byte c;
+	}
+	return d[:nd];
 }
 
 say(s: string)

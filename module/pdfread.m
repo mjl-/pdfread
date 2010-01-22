@@ -1,4 +1,5 @@
-Pdfread: module {
+Pdfread: module
+{
 	PATH:	con "/dis/lib/pdfread.dis";
 
 	dflag: int;

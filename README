@@ -20,16 +20,18 @@ free to fix/improve!
 
 # install
 
-first, ensure a "mkconfig" file is present.  a bind/symlink to the
-mkconfig of your inferno install should do.  create the directory
-/dis/pdf.  now "mk install" to compile and install the files.
+make sure you have $ROOT set, now "mk install" to compile and install
+the files.
+
+when building from within inferno, insert SYSHOST=Inferno and ROOT=
+in the mk invocations to override the values in the mkconfig.
 
 
 # download
 
 the latest version can be found at:
 
-    http://www.ueber.net/code/r/pdfread
+	http://www.ueber.net/code/r/pdfread
 
 
 # licence & author

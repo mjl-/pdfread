@@ -13,7 +13,7 @@ Filtrate: module {
 };
 
 
-vflag := 0;
+dflag := 0;
 tab := array[] of {
 	("deflate", Filter->DEFLATEPATH),
 	("inflate", Filter->INFLATEPATH),
@@ -30,10 +30,10 @@ init(nil: ref Draw->Context, args: list of string)
 	params := "";
 
 	arg->init(args);
-	arg->setusage(arg->progname()+" [-v] [-p params] [file.dis | name]");
+	arg->setusage(arg->progname()+" [-d] [-p params] [file.dis | name]");
 	while((c := arg->opt()) != 0)
 		case c {
-		'v' =>	vflag++;
+		'd' =>	dflag++;
 		'p' =>	params = arg->earg();
 		* =>	arg->usage();
 		}
@@ -62,8 +62,7 @@ done:
 	for(;;) {
 		pick m := <-rq {
 		Start =>
-			if(vflag)
-				say(sprint("pid=%d", m.pid));
+			say(sprint("pid=%d", m.pid));
 		Fill =>
 			n := sys->read(sys->fildes(0), m.buf, len m.buf);
 			if(n < 0)
@@ -82,14 +81,12 @@ done:
 			say(sprint("finished, remaining %d bytes", len m.buf));
 			break done;
 		Info =>
-			if(vflag)
-				say("info: "+m.msg);
+			say("info: "+m.msg);
 		Error =>
 			fail("error: "+m.e);
 		}
 	}
-	if(vflag)
-		say("done");
+	say("done");
 }
 
 fail(s: string)
@@ -100,5 +97,6 @@ fail(s: string)
 
 say(s: string)
 {
-	sys->fprint(sys->fildes(2), "%s\n", s);
+	if(dflag)
+		sys->fprint(sys->fildes(2), "%s\n", s);
 }
